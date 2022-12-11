@@ -1,50 +1,125 @@
 package com.example.UnitTestKafka.kafka;
 
+//import com.example.UnitTestKafka.model.User;
+//import com.fasterxml.jackson.core.JsonProcessingException;
+//import com.fasterxml.jackson.databind.ObjectMapper;
+//import org.apache.kafka.clients.consumer.ConsumerConfig;
+//import org.apache.kafka.clients.consumer.ConsumerRecord;
+//import org.apache.kafka.common.serialization.StringDeserializer;
+//import org.junit.jupiter.api.AfterAll;
+//import org.junit.jupiter.api.BeforeAll;
+//import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.TestInstance;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+//import org.springframework.kafka.listener.ContainerProperties;
+//import org.springframework.kafka.listener.KafkaMessageListenerContainer;
+//import org.springframework.kafka.listener.MessageListener;
+//import org.springframework.kafka.test.EmbeddedKafkaBroker;
+//import org.springframework.kafka.test.context.EmbeddedKafka;
+//import org.springframework.kafka.test.utils.ContainerTestUtils;
+//import org.springframework.test.context.DynamicPropertyRegistry;
+//import org.springframework.test.context.DynamicPropertySource;
+//
+//import java.util.Map;
+//import java.util.concurrent.BlockingQueue;
+//import java.util.concurrent.LinkedBlockingQueue;
+//import java.util.concurrent.TimeUnit;
+//
+//import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import com.example.UnitTestKafka.model.User;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.KafkaMessageListenerContainer;
+import org.springframework.kafka.listener.MessageListener;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.kafka.test.utils.ContainerTestUtils;
 
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-@SpringBootTest
-@DirtiesContext
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
+@EmbeddedKafka
+@SpringBootTest(properties = "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KafkaProducerTest {
-    String topic = "test_topic";
+
+    private BlockingQueue<ConsumerRecord<String, String>> records;
+
+    private KafkaMessageListenerContainer<String, String> container;
 
     @Autowired
-    private KafkaProducer producer;
-
+    private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @Autowired
-    private KafkaConsumer consumer;
+    private UserKafkaProducer producer;
 
-    @Test
-    public void test_Producer_ok() throws Exception {
-        String data = "messagetest";
-        producer.send(topic, data);
-        boolean messageConsumed = consumer.getLatch().await(10, TimeUnit.SECONDS);
-        assertTrue(messageConsumed);
-        assertThat(consumer.getPayload(), containsString(data));
+    @Autowired
+    private ObjectMapper objectMapper;
+
+
+    @BeforeAll
+    void setUp() {
+        DefaultKafkaConsumerFactory<String, String> consumerFactory = new DefaultKafkaConsumerFactory<>(getConsumerProperties());
+//        ContainerProperties containerProperties = new ContainerProperties("com.madadipouya.kafka.user");
+        ContainerProperties containerProperties = new ContainerProperties("TopicUser");
+        container = new KafkaMessageListenerContainer<>(consumerFactory, containerProperties);
+        records = new LinkedBlockingQueue<>();
+        container.setupMessageListener((MessageListener<String, String>) records::add);
+        container.start();
+        ContainerTestUtils.waitForAssignment(container, embeddedKafkaBroker.getPartitionsPerTopic());
     }
 
     @Test
-    public void test_Producer_ko() throws Exception {
-        String data = "messagetest";
-        String data1 = "messagetest1";
-        producer.send(topic, data);
-        boolean messageConsumed = consumer.getLatch().await(0, TimeUnit.SECONDS);
-        assertTrue(messageConsumed);
-        assertThat(consumer.getPayload(), containsString(data1));
+    void testWriteToKafka() throws InterruptedException, JsonProcessingException {
+        // Create a user and write to Kafka
+        User user = new User("uid1", "farid", "Imakh");
+        producer.writeToKafka(user);
+
+        // Read the message (John Wick user) with a test consumer from Kafka and assert its properties
+        ConsumerRecord<String, String> message = records.poll(500, TimeUnit.MILLISECONDS);
+        assertNotNull(message);
+        assertEquals("uid1", message.key());
+        User result = objectMapper.readValue(message.value(), User.class);
+        assertNotNull(result);
+        assertEquals("farid", result.getFirstName());
+        assertEquals("Imakh", result.getLastName());
     }
 
+    private Map<String, Object> getConsumerProperties() {
+        return Map.of(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, embeddedKafkaBroker.getBrokersAsString(),
+                ConsumerConfig.GROUP_ID_CONFIG, "consumer",
+                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true",
+                ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "10",
+                ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "60000",
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    }
 
-
-
+    @AfterAll
+    void tearDown() {
+        container.stop();
+    }
 }
