@@ -1,4 +1,8 @@
-package com.example.UnitTestKafka.model;
+package com.example.UnitTestKafka.payload;
+
+import lombok.Data;
+
+@Data
 public class User {
     private String uuid;
 
