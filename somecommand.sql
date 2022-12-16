@@ -11,7 +11,7 @@ kafka-run-class kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic 
 kafka-run-class kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic wikichangesresponses-log --time -1
 kafka-run-class kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic wikichangesresponses-new --time -1
 kafka-run-class kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic wikichangesresponses-categorize --time -1
-kafka-console-consumer --topic user --from-beginning --bootstrap-server localhost:9092
+kafka-console-consumer --topic person --from-beginning --bootstrap-server localhost:9092
 
 
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic indexing-v1 --from-beginning  | jq

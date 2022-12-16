@@ -1,7 +1,7 @@
 package com.example.UnitTestKafka.kafka;
 
 
-import com.example.UnitTestKafka.payload.User;
+import com.example.UnitTestKafka.model.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,23 +11,23 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 @Service
-public class KafkaProducer {
+public class PersonKafkaProducer {
     @Value("${spring.kafka.topic.name}")
     private String topic;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProducer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersonKafkaProducer.class);
 
-    private KafkaTemplate<String, User> kafkaTemplate;
+    private final KafkaTemplate<String, Person> kafkaTemplate;
 
-    public KafkaProducer(KafkaTemplate<String, User> kafkaTemplate) {
+    public PersonKafkaProducer(KafkaTemplate<String, Person> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendMessage(User data){
+    public void sendMessage(Person data){
 
         LOGGER.info(String.format("Message sent -> %s", data.toString()));
 
-        Message<User> message = MessageBuilder
+        Message<Person> message = MessageBuilder
                 .withPayload(data)
                 .setHeader(KafkaHeaders.TOPIC, topic)
                 .setHeader(KafkaHeaders.MESSAGE_KEY, data.getUuid())

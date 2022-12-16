@@ -1,7 +1,7 @@
 package com.example.UnitTestKafka.controller;
 
-import com.example.UnitTestKafka.kafka.KafkaProducer;
-import com.example.UnitTestKafka.payload.User;
+import com.example.UnitTestKafka.kafka.PersonKafkaProducer;
+import com.example.UnitTestKafka.model.Person;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping()
 public class JsonMessageController {
 
-    private KafkaProducer kafkaProducer;
+    private PersonKafkaProducer personKafkaProducer;
 
-    public JsonMessageController(KafkaProducer kafkaProducer) {
-        this.kafkaProducer = kafkaProducer;
+    public JsonMessageController(PersonKafkaProducer personKafkaProducer) {
+        this.personKafkaProducer = personKafkaProducer;
     }
 
     @PostMapping("/publish")
-    public ResponseEntity<String> publish(@RequestBody User user){
-        kafkaProducer.sendMessage(user);
+    public ResponseEntity<String> publish(@RequestBody Person person){
+        personKafkaProducer.sendMessage(person);
         return ResponseEntity.ok("Json message sent to kafka topic");
     }
 }

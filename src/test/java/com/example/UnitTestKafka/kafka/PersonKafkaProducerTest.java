@@ -1,12 +1,15 @@
 package com.example.UnitTestKafka.kafka;
 
-import com.example.UnitTestKafka.payload.User;
+import com.example.UnitTestKafka.model.Person;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -24,11 +27,13 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @EmbeddedKafka
 @SpringBootTest(properties = "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class KafkaProducerTest {
+class PersonKafkaProducerTest {
 
     private BlockingQueue<ConsumerRecord<String, String>> records;
 
@@ -38,7 +43,7 @@ class KafkaProducerTest {
     private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @Autowired
-    private KafkaProducer producer;
+    private PersonKafkaProducer producer;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -47,7 +52,7 @@ class KafkaProducerTest {
     static void kafkaProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", () -> "jdbc:h2:mem:test");
         registry.add("spring.datasource.driverClassName", () -> "org.h2.Driver");
-        registry.add("spring.datasource.username", () -> "root");
+        registry.add("spring.datasource.personname", () -> "root");
         registry.add("spring.datasource.password", () -> "secret");
         registry.add("spring.flyway.enabled", () -> "false");
     }
@@ -65,15 +70,15 @@ class KafkaProducerTest {
 
     @Test
     void sendMessage() throws InterruptedException, JsonProcessingException {
-        // Create a user and write to Kafka
-        User user = new User("faim", "farid", "imakh");
-        producer.sendMessage(user);
+        // write a person to Kafka
+        Person person = new Person("faim", "farid", "imakh");
+        producer.sendMessage(person);
 
-        // Read the message (John Wick user) with a test consumer from Kafka and assert its properties
+        // Read the message  and assert its properties
         ConsumerRecord<String, String> message = records.poll(500, TimeUnit.MILLISECONDS);
         assertNotNull(message);
         assertEquals("faim", message.key());
-        User result = objectMapper.readValue(message.value(), User.class);
+        Person result = objectMapper.readValue(message.value(), Person.class);
         assertNotNull(result);
         assertEquals("farid", result.getFirstName());
         assertEquals("imakh", result.getLastName());

@@ -1,20 +1,19 @@
-package com.example.UnitTestKafka.payload;
+package com.example.UnitTestKafka.model;
 
-import lombok.Data;
 
-@Data
-public class User {
+public class Person {
+
     private String uuid;
 
     private String firstName;
 
     private String lastName;
 
-    public User() {
+    public Person() {
 
     }
 
-    public User(String uuid, String firstName, String lastName) {
+    public Person(String uuid, String firstName, String lastName) {
         this.uuid = uuid;
         this.firstName = firstName;
         this.lastName = lastName;
