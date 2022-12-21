@@ -20,8 +20,6 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,8 +33,6 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest(properties = "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PersonKafkaConsumerTest {
-
-    private final String TOPIC_NAME = "topic_test";
 
     private Producer<String, String> producer;
 
@@ -62,14 +58,6 @@ class PersonKafkaConsumerTest {
     @Captor
     ArgumentCaptor<Long> offsetArgumentCaptor;
 
-    @DynamicPropertySource
-    static void kafkaProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:test");
-        registry.add("spring.datasource.driverClassName", () -> "org.h2.Driver");
-        registry.add("spring.datasource.personname", () -> "root");
-        registry.add("spring.datasource.password", () -> "secret");
-        registry.add("spring.flyway.enabled", () -> "false");
-    }
 
     @BeforeAll
     void setUp() {
@@ -81,6 +69,7 @@ class PersonKafkaConsumerTest {
     void testLogKafkaMessages() throws JsonProcessingException {
         // Write a message(person) to Kafka using a test producer
         String message = objectMapper.writeValueAsString(new Person("farim", "farid", "imakh"));
+        String TOPIC_NAME = "topic_test";
         producer.send(new ProducerRecord<>(TOPIC_NAME, 0, "farim", message));
         producer.flush();
 
@@ -98,9 +87,19 @@ class PersonKafkaConsumerTest {
         assertEquals(0, partitionArgumentCaptor.getValue());
         assertEquals(0, offsetArgumentCaptor.getValue());
     }
+
     @AfterAll
     void shutdown() {
         producer.close();
     }
 
 }
+
+//    @DynamicPropertySource
+//    static void kafkaProperties(DynamicPropertyRegistry registry) {
+//        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:test");
+//        registry.add("spring.datasource.driverClassName", () -> "org.h2.Driver");
+//        registry.add("spring.datasource.personname", () -> "root");
+//        registry.add("spring.datasource.password", () -> "secret");
+//        registry.add("spring.flyway.enabled", () -> "false");
+//    }

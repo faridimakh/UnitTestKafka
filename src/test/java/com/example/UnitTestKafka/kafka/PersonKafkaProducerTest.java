@@ -19,8 +19,6 @@ import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -43,19 +41,11 @@ class PersonKafkaProducerTest {
     private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @Autowired
-    private PersonKafkaProducer producer;
+    private PersonKafkaProducer personKafkaProducer;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @DynamicPropertySource
-    static void kafkaProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:test");
-        registry.add("spring.datasource.driverClassName", () -> "org.h2.Driver");
-        registry.add("spring.datasource.personname", () -> "root");
-        registry.add("spring.datasource.password", () -> "secret");
-        registry.add("spring.flyway.enabled", () -> "false");
-    }
 
     @BeforeAll
     void setUp() {
@@ -72,7 +62,7 @@ class PersonKafkaProducerTest {
     void sendMessage() throws InterruptedException, JsonProcessingException {
         // write a person to Kafka
         Person person = new Person("faim", "farid", "imakh");
-        producer.sendMessage(person);
+        personKafkaProducer.sendMessage(person);
 
         // Read the message  and assert its properties
         ConsumerRecord<String, String> message = records.poll(500, TimeUnit.MILLISECONDS);
@@ -102,3 +92,12 @@ class PersonKafkaProducerTest {
     }
 
 }
+
+//    @DynamicPropertySource
+//    static void kafkaProperties(DynamicPropertyRegistry registry) {
+//        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:test");
+//        registry.add("spring.datasource.driverClassName", () -> "org.h2.Driver");
+//        registry.add("spring.datasource.personname", () -> "root");
+//        registry.add("spring.datasource.password", () -> "secret");
+//        registry.add("spring.flyway.enabled", () -> "false");
+//    }
