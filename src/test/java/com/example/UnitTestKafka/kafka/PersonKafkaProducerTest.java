@@ -61,13 +61,13 @@ class PersonKafkaProducerTest {
     @Test
     void sendMessage() throws InterruptedException, JsonProcessingException {
         // write a person to Kafka
-        Person person = new Person("faim", "farid", "imakh");
+        Person person = new Person("keyfar", "farid", "imakh");
         personKafkaProducer.sendMessage(person);
 
         // Read the message  and assert its properties
         ConsumerRecord<String, String> message = records.poll(500, TimeUnit.MILLISECONDS);
         assertNotNull(message);
-        assertEquals("faim", message.key());
+        assertEquals("keyfar", message.key());
         Person result = objectMapper.readValue(message.value(), Person.class);
         assertNotNull(result);
         assertEquals("farid", result.getFirstName());
@@ -93,11 +93,3 @@ class PersonKafkaProducerTest {
 
 }
 
-//    @DynamicPropertySource
-//    static void kafkaProperties(DynamicPropertyRegistry registry) {
-//        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:test");
-//        registry.add("spring.datasource.driverClassName", () -> "org.h2.Driver");
-//        registry.add("spring.datasource.personname", () -> "root");
-//        registry.add("spring.datasource.password", () -> "secret");
-//        registry.add("spring.flyway.enabled", () -> "false");
-//    }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping()
 public class JsonMessageController {
 
-    private PersonKafkaProducer personKafkaProducer;
+    private final PersonKafkaProducer personKafkaProducer;
 
     public JsonMessageController(PersonKafkaProducer personKafkaProducer) {
         this.personKafkaProducer = personKafkaProducer;

@@ -4,6 +4,7 @@ package com.example.UnitTestKafka.kafka;
 import com.example.UnitTestKafka.model.Person;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -47,7 +48,7 @@ class PersonKafkaConsumerTest {
 
 
     @Captor
-    ArgumentCaptor<Person> personArgumentCaptor;
+    ArgumentCaptor<ConsumerRecord<String, Person>> personArgumentCaptor;
 
     @Captor
     ArgumentCaptor<String> topicArgumentCaptor;
@@ -78,7 +79,7 @@ class PersonKafkaConsumerTest {
                 .consume(personArgumentCaptor.capture(), topicArgumentCaptor.capture(),
                         partitionArgumentCaptor.capture(), offsetArgumentCaptor.capture());
 
-        Person person = personArgumentCaptor.getValue();
+        Person person = personArgumentCaptor.getValue().value();
         assertNotNull(person);
         assertEquals("farim", person.getUuid());
         assertEquals("farid", person.getFirstName());

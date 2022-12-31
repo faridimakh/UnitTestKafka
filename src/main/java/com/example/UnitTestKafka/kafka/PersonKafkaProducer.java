@@ -25,7 +25,7 @@ public class PersonKafkaProducer {
 
     public void sendMessage(Person data){
 
-        LOGGER.info(String.format("Message sent -> %s", data.toString()));
+        LOGGER.info(String.format("Message sent -> %s", data));
 
         Message<Person> message = MessageBuilder
                 .withPayload(data)
