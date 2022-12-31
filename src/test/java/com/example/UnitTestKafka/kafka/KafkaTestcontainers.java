@@ -48,7 +48,7 @@ public class KafkaTestcontainers {
     }
 
     @DynamicPropertySource
-    static void registerPgProperties(DynamicPropertyRegistry registry) {
+    static void fetchBootstrapServersProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.kafka.bootstrap-servers", () -> kafkaContainer.getBootstrapServers());
     }
 
