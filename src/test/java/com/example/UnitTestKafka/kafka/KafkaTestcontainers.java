@@ -1,5 +1,6 @@
 package com.example.UnitTestKafka.kafka;
 
+import com.example.UnitTestKafka.model.Loc;
 import com.example.UnitTestKafka.model.Person;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.AfterAll;
@@ -30,7 +31,7 @@ public class KafkaTestcontainers {
     @Test
     void test_produce_consume() throws InterruptedException {
 //        send a message
-        Person person = new Person("keyfar", "farid", "imakh");
+        Person person = new Person("keyfar", "farid", "imakh", new Loc(2.2414, 2.2155));
         personKafkaProducer.sendMessage(person);
 
         Pair<String, Person> message = personKafkaConsumer.awaitPayload();
@@ -41,6 +42,8 @@ public class KafkaTestcontainers {
         Assertions.assertEquals("keyfar", message_payload.getUuid());
         Assertions.assertEquals("farid", message_payload.getFirstName());
         Assertions.assertEquals("imakh", message_payload.getLastName());
+        Assertions.assertEquals(2.2414, message_payload.getLoc().getLat());
+        Assertions.assertEquals(2.2155, message_payload.getLoc().getLgt());
 //        kafkaContainer.stop();
     }
 

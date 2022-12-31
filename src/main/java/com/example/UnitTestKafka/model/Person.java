@@ -8,16 +8,18 @@ public class Person {
     private String firstName;
 
     private String lastName;
+    private Loc loc;
 
 
     public Person() {
 
     }
 
-    public Person(String uuid, String firstName, String lastName) {
+    public Person(String uuid, String firstName, String lastName, Loc loc) {
         this.uuid = uuid;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.loc = loc;
     }
 
     public String getUuid() {
@@ -32,12 +34,17 @@ public class Person {
         return lastName;
     }
 
+    public Loc getLoc() {
+        return loc;
+    }
+
     @Override
     public String toString() {
         return "Person{" +
                 "uuid='" + uuid + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", loc=" + loc +
                 '}';
     }
 }

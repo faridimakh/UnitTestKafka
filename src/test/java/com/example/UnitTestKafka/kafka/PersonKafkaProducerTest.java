@@ -1,5 +1,6 @@
 package com.example.UnitTestKafka.kafka;
 
+import com.example.UnitTestKafka.model.Loc;
 import com.example.UnitTestKafka.model.Person;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,7 +62,7 @@ class PersonKafkaProducerTest {
     @Test
     void sendMessage() throws InterruptedException, JsonProcessingException {
         // write a person to Kafka
-        Person person = new Person("keyfar", "farid", "imakh");
+        Person person = new Person("keyfar", "farid", "imakh",new Loc(2.2414, 2.2155));
         personKafkaProducer.sendMessage(person);
 
         // Read the message  and assert its properties
@@ -72,6 +73,8 @@ class PersonKafkaProducerTest {
         assertNotNull(result);
         assertEquals("farid", result.getFirstName());
         assertEquals("imakh", result.getLastName());
+        assertEquals(2.2414, result.getLoc().getLat());
+        assertEquals(2.2155, result.getLoc().getLgt());
     }
 
     private Map<String, Object> getConsumerProperties() {

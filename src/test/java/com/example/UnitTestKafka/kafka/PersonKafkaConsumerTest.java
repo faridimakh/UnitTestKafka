@@ -1,6 +1,7 @@
 package com.example.UnitTestKafka.kafka;
 
 
+import com.example.UnitTestKafka.model.Loc;
 import com.example.UnitTestKafka.model.Person;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,7 +70,7 @@ class PersonKafkaConsumerTest {
     @Test
     void testLogKafkaMessages() throws JsonProcessingException {
         // Write a message(person) to Kafka using a test producer
-        String message = objectMapper.writeValueAsString(new Person("farim", "farid", "imakh"));
+        String message = objectMapper.writeValueAsString(new Person("farim", "farid", "imakh", new Loc(2.2414, 2.2155)));
         String TOPIC_NAME = "topic_test";
         producer.send(new ProducerRecord<>(TOPIC_NAME, 0, "farim", message));
         producer.flush();
@@ -84,6 +85,8 @@ class PersonKafkaConsumerTest {
         assertEquals("farim", person.getUuid());
         assertEquals("farid", person.getFirstName());
         assertEquals("imakh", person.getLastName());
+        assertEquals(2.2414, person.getLoc().getLat());
+        assertEquals(2.2155, person.getLoc().getLgt());
         assertEquals(TOPIC_NAME, topicArgumentCaptor.getValue());
         assertEquals(0, partitionArgumentCaptor.getValue());
         assertEquals(0, offsetArgumentCaptor.getValue());
@@ -96,11 +99,3 @@ class PersonKafkaConsumerTest {
 
 }
 
-//    @DynamicPropertySource
-//    static void kafkaProperties(DynamicPropertyRegistry registry) {
-//        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:test");
-//        registry.add("spring.datasource.driverClassName", () -> "org.h2.Driver");
-//        registry.add("spring.datasource.personname", () -> "root");
-//        registry.add("spring.datasource.password", () -> "secret");
-//        registry.add("spring.flyway.enabled", () -> "false");
-//    }
