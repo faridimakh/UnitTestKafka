@@ -35,7 +35,7 @@ public class PersonKafkaConsumer {
     }
 
 
-    public Pair<String, Person> awaitPayload() throws InterruptedException {
+    public Pair<String, Person> awaitMessage() throws InterruptedException {
         boolean messageConsumed = this.latch.await(500, TimeUnit.MILLISECONDS);
         if (!messageConsumed) {
             throw new RuntimeException("message not consumed");

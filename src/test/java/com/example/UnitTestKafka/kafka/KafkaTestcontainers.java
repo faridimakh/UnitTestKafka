@@ -34,7 +34,7 @@ public class KafkaTestcontainers {
         Person person = new Person("keyfar", "farid", "imakh", new Loc(2.2414, 2.2155));
         personKafkaProducer.sendMessage(person);
 
-        Pair<String, Person> message = personKafkaConsumer.awaitPayload();
+        Pair<String, Person> message = personKafkaConsumer.awaitMessage();
 
         Person message_payload = message.getValue1();
         String message_key = message.getValue0();
