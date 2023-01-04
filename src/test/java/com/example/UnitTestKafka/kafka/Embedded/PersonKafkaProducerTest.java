@@ -1,5 +1,6 @@
-package com.example.UnitTestKafka.kafka;
+package com.example.UnitTestKafka.kafka.Embedded;
 
+import com.example.UnitTestKafka.kafka.PersonKafkaProducer;
 import com.example.UnitTestKafka.model.Loc;
 import com.example.UnitTestKafka.model.Person;
 import com.fasterxml.jackson.core.JsonProcessingException;

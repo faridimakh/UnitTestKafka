@@ -1,5 +1,7 @@
-package com.example.UnitTestKafka.kafka;
+package com.example.UnitTestKafka.kafka.Testcontainer;
 
+import com.example.UnitTestKafka.kafka.PersonKafkaConsumer;
+import com.example.UnitTestKafka.kafka.PersonKafkaProducer;
 import com.example.UnitTestKafka.model.Loc;
 import com.example.UnitTestKafka.model.Person;
 import org.javatuples.Pair;
@@ -27,7 +29,6 @@ public class KafkaTestcontainers {
 
     @Autowired
     PersonKafkaConsumer personKafkaConsumer;
-
 
 
     @Test
