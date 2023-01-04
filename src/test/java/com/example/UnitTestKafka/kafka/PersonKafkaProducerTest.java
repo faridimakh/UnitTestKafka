@@ -37,7 +37,7 @@ class PersonKafkaProducerTest {
     //give topic name: src/test/resources/application.properties
     @Value("${spring.kafka.topic.name}")
     private String TOPIC_NAME;
-   //
+    //
     private BlockingQueue<ConsumerRecord<String, String>> records;
 
     private KafkaMessageListenerContainer<String, String> container;
@@ -66,12 +66,12 @@ class PersonKafkaProducerTest {
         records = new LinkedBlockingQueue<>();
 //      add message received in the LinkedBlockingQueue
         container.setupMessageListener((MessageListener<String, String>) records::add);
-//
 
 //      start the container:
         container.start();
         ContainerTestUtils.waitForAssignment(container, embeddedKafkaBroker.getPartitionsPerTopic());
-//        ContainerTestUtils.waitForAssignment(container, 2);
+        //or:
+        //ContainerTestUtils.waitForAssignment(container, 1);
     }
 
     @Test

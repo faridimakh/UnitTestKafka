@@ -1,6 +1,5 @@
 package com.example.UnitTestKafka.kafka;
 
-
 import com.example.UnitTestKafka.model.Loc;
 import com.example.UnitTestKafka.model.Person;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.verification.VerificationMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -65,7 +63,6 @@ class PersonKafkaConsumerTest {
     @Captor
     ArgumentCaptor<Long> offsetArgumentCaptor;
 
-
     @BeforeAll
     void setUp() {
         Map<String, Object> configs = new HashMap<>(KafkaTestUtils.producerProps(embeddedKafkaBroker));
@@ -73,20 +70,24 @@ class PersonKafkaConsumerTest {
     }
 
     @Test
-    void testLogKafkaMessages() throws JsonProcessingException {
+    void consume() throws JsonProcessingException {
         // Write a message(person) to Kafka using a test producer
-        Person pushed_person=new Person("farim", "farid", "imakh", new Loc(2.2414, 1.2155));
+        Person pushed_person = new Person("keyfar", "farid", "imakh", new Loc(2.2414, 1.2155));
         String message = objectMapper.writeValueAsString(pushed_person);
-        producer.send(new ProducerRecord<>(TOPIC_NAME, 0, "farim", message));
+        //or
+        //String message = "{\"uuid\":\"farim\",\"firstName\":\"farid\",\"lastName\":\"imakh\",\"loc\":{\"lat\":2.2414,\"lgt\":1.2155}}";
+
+        producer.send(new ProducerRecord<>(TOPIC_NAME, 0, pushed_person.getUuid(), message));
         producer.flush();
 
         // Read the message and assert its properties
 
-        verify(personKafkaConsumer,timeout(1000).times(1)).consume(
+        verify(personKafkaConsumer, timeout(1000).times(1)).consume(
                 personArgumentCaptor.capture(),
                 topicArgumentCaptor.capture(),
                 partitionArgumentCaptor.capture(),
                 offsetArgumentCaptor.capture());
+
         //capturing payload
         Person captured_person = personArgumentCaptor.getValue().value();
         //capturing key
@@ -95,16 +96,18 @@ class PersonKafkaConsumerTest {
         //check if the captured key and value are both not null:
         assertNotNull(captured_person);
         assertNotNull(captured_key);
-        //test key pushed equal to key captured
-        assertEquals(pushed_person.getUuid(),captured_key);
-        //test payload pushed equal to payload captured
 
+        //test key pushed equal to key captured
+        assertEquals(pushed_person.getUuid(), captured_key);
+
+        //test payload pushed equal to payload captured
         assertEquals(pushed_person.getUuid(), captured_person.getUuid());
         assertEquals(pushed_person.getFirstName(), captured_person.getFirstName());
         assertEquals(pushed_person.getLastName(), captured_person.getLastName());
         assertEquals(pushed_person.getLoc().getLat(), captured_person.getLoc().getLat());
         assertEquals(pushed_person.getLoc().getLgt(), captured_person.getLoc().getLgt());
 
+        //assert others: consuming in the right topic, partition and offset
         assertEquals(TOPIC_NAME, topicArgumentCaptor.getValue());
         assertEquals(0, partitionArgumentCaptor.getValue());
         assertEquals(0, offsetArgumentCaptor.getValue());

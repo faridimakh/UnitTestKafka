@@ -5,7 +5,6 @@ import com.example.UnitTestKafka.model.Person;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,6 +32,9 @@ public class KafkaTestcontainers {
 
     @Test
     void test_produce_consume() throws InterruptedException {
+        System.out.println("*********************************************************************************************");
+        System.out.println(kafkaContainer.getBootstrapServers());
+        System.out.println(kafkaContainer.getExposedPorts());
 //        send a message
         Person person = new Person("keyfar", "farid", "imakh", new Loc(2.2414, 2.2155));
         personKafkaProducer.sendMessage(person);
