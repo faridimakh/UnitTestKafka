@@ -33,7 +33,7 @@ public class KafkaTestcontainers {
 
     @Test
     void test_produce_consume() throws InterruptedException {
-        System.out.println("*********************************************************************************************");
+        System.out.println("random port:*********************************************************************************************");
         System.out.println(kafkaContainer.getBootstrapServers());
         System.out.println(kafkaContainer.getExposedPorts());
 //        send a message

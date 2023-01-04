@@ -64,7 +64,7 @@ class PersonKafkaProducerTest {
         container = new KafkaMessageListenerContainer<>(consumerFactory, containerProperties);
 //
 //      create new LinkedBlockingQueue:
-        records = new LinkedBlockingQueue<>();
+        records = new LinkedBlockingQueue<>(1);
 //      add message received in the LinkedBlockingQueue
         container.setupMessageListener((MessageListener<String, String>) records::add);
 
@@ -78,25 +78,25 @@ class PersonKafkaProducerTest {
     @Test
     void sendMessage() throws InterruptedException, JsonProcessingException {
         // write a message(person.uuid, person) to Kafka
-        Person person = new Person("keyfar", "farid", "imakh", new Loc(2.2414, 2.2155));
-        personKafkaProducer.sendMessage(person);
+        Person pushed_person = new Person("keyfar", "farid", "imakh", new Loc(2.2414, 2.2155));
+        personKafkaProducer.sendMessage(pushed_person);
 
         // pull the message  from LinkedBlockingQueue
         ConsumerRecord<String, String> message = records.poll(500, TimeUnit.MILLISECONDS);
         //check that the message is not null
         assertNotNull(message);
         //check that the key pulled from LinkedBlockingQueue equal to the key pushed with tour producer
-        assertEquals(person.getUuid(), message.key());
+        assertEquals(pushed_person.getUuid(), message.key());
         //parceing the paload as person class
-        Person result = objectMapper.readValue(message.value(), Person.class);
+        Person pulled_person = objectMapper.readValue(message.value(), Person.class);
         //check that the parced payload is not nul
-        assertNotNull(result);
+        assertNotNull(pulled_person);
         //testing payload values
-        assertEquals(person.getUuid(), result.getUuid());
-        assertEquals(person.getFirstName(), result.getFirstName());
-        assertEquals(person.getLastName(), result.getLastName());
-        assertEquals(person.getLoc().getLat(), result.getLoc().getLat());
-        assertEquals(person.getLoc().getLgt(), result.getLoc().getLgt());
+        assertEquals(pushed_person.getUuid(), pulled_person.getUuid());
+        assertEquals(pushed_person.getFirstName(), pulled_person.getFirstName());
+        assertEquals(pushed_person.getLastName(), pulled_person.getLastName());
+        assertEquals(pushed_person.getLoc().getLat(), pulled_person.getLoc().getLat());
+        assertEquals(pushed_person.getLoc().getLgt(), pulled_person.getLoc().getLgt());
     }
 
     private Map<String, Object> getConsumerProperties() {
