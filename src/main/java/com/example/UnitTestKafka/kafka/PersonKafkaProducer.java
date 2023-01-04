@@ -12,6 +12,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 @Service
 public class PersonKafkaProducer {
+
     @Value("${spring.kafka.topic.name}")
     private String topic;
 
@@ -36,3 +37,6 @@ public class PersonKafkaProducer {
         kafkaTemplate.send(message);
     }
 }
+
+
+//message example to send:

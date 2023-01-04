@@ -18,7 +18,9 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class PersonKafkaConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonKafkaConsumer.class);
+
     private CountDownLatch latch = new CountDownLatch(1);
+
     private Person payload;
     private String key;
 
@@ -26,12 +28,14 @@ public class PersonKafkaConsumer {
     public void consume(ConsumerRecord<String, Person> consumerRecord,
                         @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                         @Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition,
-                        @Header(KafkaHeaders.OFFSET) Long offset) {
+                        @Header(KafkaHeaders.OFFSET) Long offset)
+    {
         this.key = consumerRecord.key();
         this.payload = consumerRecord.value();
         latch.countDown();
-        LOGGER.info("Received a message contains a person information with id {}, from {} topic, " +
-                "{} partition, and {} offset", consumerRecord.value().toString(), topic, partition, offset);
+
+        LOGGER.info("Received a message contains a person information with id {}, from  topic name: {}, " +
+                "partition: {}, offset :{}", consumerRecord.value().toString(), topic, partition, offset);
     }
 
 

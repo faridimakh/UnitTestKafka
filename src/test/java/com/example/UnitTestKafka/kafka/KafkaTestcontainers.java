@@ -5,6 +5,7 @@ import com.example.UnitTestKafka.model.Person;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,13 +21,15 @@ import org.testcontainers.utility.DockerImageName;
 public class KafkaTestcontainers {
     @Container
     public static KafkaContainer kafkaContainer =
-            new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka"));
+            new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.1.0"));
 
     @Autowired
     PersonKafkaProducer personKafkaProducer;
 
     @Autowired
     PersonKafkaConsumer personKafkaConsumer;
+
+
 
     @Test
     void test_produce_consume() throws InterruptedException {
@@ -38,13 +41,13 @@ public class KafkaTestcontainers {
 
         Person message_payload = message.getValue1();
         String message_key = message.getValue0();
-        Assertions.assertEquals("keyfar", message_key);
-        Assertions.assertEquals("keyfar", message_payload.getUuid());
-        Assertions.assertEquals("farid", message_payload.getFirstName());
-        Assertions.assertEquals("imakh", message_payload.getLastName());
-        Assertions.assertEquals(2.2414, message_payload.getLoc().getLat());
-        Assertions.assertEquals(2.2155, message_payload.getLoc().getLgt());
-//        kafkaContainer.stop();
+
+        Assertions.assertEquals(person.getUuid(), message_key);
+        Assertions.assertEquals(person.getUuid(), message_payload.getUuid());
+        Assertions.assertEquals(person.getFirstName(), message_payload.getFirstName());
+        Assertions.assertEquals(person.getLastName(), message_payload.getLastName());
+        Assertions.assertEquals(person.getLoc().getLat(), message_payload.getLoc().getLat());
+        Assertions.assertEquals(person.getLoc().getLgt(), message_payload.getLoc().getLgt());
     }
 
     @DynamicPropertySource
