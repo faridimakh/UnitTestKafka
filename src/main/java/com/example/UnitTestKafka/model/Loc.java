@@ -1,24 +1,17 @@
 package com.example.UnitTestKafka.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Loc {
     private double lat;
     private double lgt;
-
-    public Loc() {
-    }
-
-    public double getLat() {
-        return lat;
-    }
-
-    public double getLgt() {
-        return lgt;
-    }
-
-    public Loc(double lat, double lgt) {
-        this.lat = lat;
-        this.lgt = lgt;
-    }
 
     @Override
     public String toString() {
